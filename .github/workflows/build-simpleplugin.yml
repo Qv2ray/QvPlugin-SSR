@@ -1,4 +1,4 @@
-name: QvPlugin Build Action - cmake
+name: Build QvSSR Plugin - cmake
 
 on: 
   push:
@@ -68,6 +68,48 @@ jobs:
           arch: ${{ matrix.qtarch }}
           mirror: 'http://mirrors.ocf.berkeley.edu/qt/'
           cached: ${{ steps.cache-qt.outputs.cache-hit }}
+      - name: Linux - ${{ matrix.qt_version }} - Build preparation - Install Packages 
+        if: matrix.platform == 'ubuntu-16.04'
+        run: |
+          sudo add-apt-repository ppa:carsten-uppenbrink-net/openssl
+          sudo add-apt-repository ppa:savoury1/backports
+          sudo apt update
+          sudo apt install -y libgl-dev libx11-dev libxkbcommon-x11-dev libssl-dev libsodium-dev tree ninja-build libuv1 libuv1-dev
+
+      - name: macOS - ${{ matrix.qt_version }} - Build preparation - Install Packages 
+        if: matrix.platform == 'macos-latest'
+        run: |
+          brew install libuv
+          brew install openssl
+          brew install libsodium
+      - name: Win-${{ matrix.arch }} - ${{ matrix.qt_version }} - Build preparation - Download Dependencies
+        shell: bash
+        if: matrix.platform == 'windows-latest'
+        run: |
+         mkdir -p ./libs
+         choco install -y ninja
+         curl -o ./libs/Qv2ray-deps-libsodium-${{ matrix.arch }}-windows.7z -L https://github.com/Qv2ray/Qv2ray-deps/releases/download/release/Qv2ray-deps-libsodium-${{ matrix.arch }}-windows.7z
+         curl -o ./libs/Qv2ray-deps-openssl-${{ matrix.arch }}-windows.7z -L https://github.com/Qv2ray/Qv2ray-deps/releases/download/release/Qv2ray-deps-openssl-${{ matrix.arch }}-windows.7z
+         curl -o ./libs/Qv2ray-deps-libuv-${{ matrix.arch }}-windows.7z -L https://github.com/DuckVador/Qv2ray-deps/releases/download/release/Qv2ray-deps-libuv-${{ matrix.arch }}-windows.7z
+      - name: Win-${{ matrix.arch }} - Build preparation - Extract Dependencies
+        if: matrix.platform == 'windows-latest'
+        uses: DuckSoft/extract-7z-action@v1.0
+        with:
+          pathSource: ./libs/Qv2ray-deps-libsodium-${{ matrix.arch }}-windows.7z
+          pathTarget: ./libs
+      - name: Win-${{ matrix.arch }} - Build preparation - Extract Dependencies
+        if: matrix.platform == 'windows-latest'
+        uses: DuckSoft/extract-7z-action@v1.0
+        with:
+          pathSource: ./libs/Qv2ray-deps-libuv-${{ matrix.arch }}-windows.7z
+          pathTarget: ./libs
+      - name: Win-${{ matrix.arch }} - Build preparation - Extract Dependencies
+        if: matrix.platform == 'windows-latest'
+        uses: DuckSoft/extract-7z-action@v1.0
+        with:
+          pathSource: ./libs/Qv2ray-deps-openssl-${{ matrix.arch }}-windows.7z
+          pathTarget: ./libs
+
 # ========================================================================================================= Generate MakeFile and Build
       - name: Windows - ${{ matrix.qt_version }} - Generate Dependencies and Build
         shell: bash
@@ -87,7 +129,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake .. -DCMAKE_BUILD_TYPE=Release
+          cmake .. -DCMAKE_BUILD_TYPE=Release -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl@1.1 -DOPENSSL_LIBRARIES=/usr/local/opt/openssl@1.1/lib
           cmake --build . --parallel $(sysctl -n hw.logicalcpu)
 # --------------------------------------------------------
       - name: Linux - ${{ matrix.qt_version }} - Generate Dependencies and Build

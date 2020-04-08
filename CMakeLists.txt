@@ -1,7 +1,7 @@
-project(QvSimplePlugin)
+project(QvSSRPlugin)
 cmake_minimum_required(VERSION 3.1.0)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 
 if(CMAKE_VERSION VERSION_LESS "3.7.0")
     set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -11,23 +11,34 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
-find_package(Qt5 COMPONENTS Core Widgets Gui REQUIRED)
+find_package(Qt5 COMPONENTS Core Widgets Gui Network REQUIRED)
 
 set(QVPLUGIN_INTERFACE_INCLUDE_DIR "interface/")
+include(cmake/shadowsocksr-uvw.cmake)
 include(interface/QvPluginInterface.cmake)
 include_directories(${QVPLUGIN_INTERFACE_INCLUDE_DIR})
 
 add_library(${PROJECT_NAME} MODULE
     SimplePlugin.hpp
     SimplePlugin.cpp
+    common/CommonHelpers.cpp
+    common/CommonHelpers.hpp
+    converter/ShareLinkParser.cpp
+    converter/ShareLinkParser.hpp
     SimplePluginEventHandler.cpp
     SimplePluginEventHandler.hpp
-    SimplePluginKernel.cpp
-    SimplePluginKernel.hpp
+    kernel/httpProxy.cpp
+    kernel/httpProxy.hpp
+    kernel/socketStream.cpp
+    kernel/socketStream.hpp
+    kernel/SSRInstance.cpp
+    kernel/SSRInstance.hpp
     resx.qrc
     ${QVPLUGIN_INTERFACE_HEADERS})
 
 target_link_libraries(${PROJECT_NAME}
     Qt5::Core
     Qt5::Gui
-    Qt5::Widgets)
+    Qt5::Widgets
+    Qt5::Network
+    ${SHADOWSOCKSR_UVW_LIBRARY})
