@@ -2,6 +2,7 @@
 
 #include "QvPluginInterface.hpp"
 #include "core/EventHandler.hpp"
+#include "core/Serializer.hpp"
 #include "core/kernel/SSRInstance.hpp"
 
 #include <QObject>
@@ -29,20 +30,17 @@ namespace SSRPlugin
                 "qvplugin_ssr",                       //
                 "Support SSR connections in Qv2ray.", //
                 QIcon(":/qv2ray.png"),                //
-                { CAPABILITY_CONNECTION_ENTRY,        //
-                  CAPABILITY_CONNECTIVITY,            //
-                  CAPABILITY_STATS,                   //
-                  CAPABILITY_SYSTEM_PROXY },          //
+                {},                                   //
                 { SPECIAL_TYPE_KERNEL,                //
                   SPECIAL_TYPE_SERIALIZOR }           //
             };
         }
         //
-        QWidget *GetSettingsWidget() override;
-        QvPluginEditor *GetEditorWidget(UI_TYPE) override;
-        QvPluginKernel *GetKernel() override;
-        QvPluginSerializer *GetSerializer() override;
-        QvPluginEventHandler *GetEventHandler() override;
+        std::unique_ptr<QWidget> GetSettingsWidget() override;
+        std::unique_ptr<QvPluginEditor> GetEditorWidget(UI_TYPE) override;
+        std::shared_ptr<QvPluginKernel> GetKernel() override;
+        std::shared_ptr<QvPluginSerializer> GetSerializer() override;
+        std::shared_ptr<QvPluginEventHandler> GetEventHandler() override;
         //
         bool UpdateSettings(const QJsonObject &) override;
         bool Initialize(const QString &, const QJsonObject &) override;
@@ -54,9 +52,8 @@ namespace SSRPlugin
 
       private:
         QJsonObject settings;
-        QLabel *pluginWidget;
-        SSRPluginEventHandler *eventHandler;
-        QvPluginSerializer *serializer;
-        SSRKernelInstance *kernel;
+        std::shared_ptr<SSRPluginEventHandler> eventHandler;
+        std::shared_ptr<SSRSerializer> serializer;
+        std::shared_ptr<SSRKernelInstance> kernel;
     };
 } // namespace SSRPlugin

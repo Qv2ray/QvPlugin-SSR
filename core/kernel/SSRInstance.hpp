@@ -10,7 +10,7 @@ namespace SSRPlugin
         explicit SSRKernelInstance(QObject *parent = nullptr);
         bool StartKernel(const QJsonObject &config) override;
         bool StopKernel() override;
-        const QMap<QString, QString> GetKernelOutbounds() const override
+        const QList<Qv2rayPlugin::QvPluginOutboundObject> KernelOutboundCapabilities() const override
         {
             return { { "ShadowSocksR", "shadowsocksr" } };
         }

@@ -8,14 +8,14 @@
 #include <QMetaEnum>
 namespace SSRPlugin
 {
-    QvPluginKernel *QvSSRPlugin::GetKernel()
+    std::shared_ptr<QvPluginKernel> QvSSRPlugin::GetKernel()
     {
         return kernel;
     }
 
-    QvPluginSerializer *QvSSRPlugin::GetSerializer()
+    std::shared_ptr<QvPluginSerializer> QvSSRPlugin::GetSerializer()
     {
-        return nullptr;
+        return serializer;
     }
 
     bool QvSSRPlugin::UpdateSettings(const QJsonObject &conf)
@@ -28,10 +28,9 @@ namespace SSRPlugin
     {
         emit PluginLog("Initialize plugin.");
         this->settings = settings;
-        pluginWidget = new QLabel;
-        eventHandler = new SSRPluginEventHandler(this);
-        kernel = new SSRKernelInstance(this);
-        serializer = new SSRSerializer(this);
+        eventHandler = std::make_shared<SSRPluginEventHandler>(this);
+        kernel = std::make_shared<SSRKernelInstance>(this);
+        serializer = std::make_shared<SSRSerializer>(this);
         return true;
     }
 
@@ -41,18 +40,18 @@ namespace SSRPlugin
         return settings;
     }
 
-    QvPluginEventHandler *QvSSRPlugin::GetEventHandler()
+    std::shared_ptr<QvPluginEventHandler> QvSSRPlugin::GetEventHandler()
     {
-        return eventHandler;
+        auto ptr = std::static_pointer_cast<QvPluginEventHandler>(eventHandler);
+        return ptr;
     }
 
-    QWidget *QvSSRPlugin::GetSettingsWidget()
+    std::unique_ptr<QWidget> QvSSRPlugin::GetSettingsWidget()
     {
-        pluginWidget->setText("From Settings: " + settings["msg"].toString());
-        return pluginWidget;
+        return nullptr;
     }
 
-    QvPluginEditor *QvSSRPlugin::GetEditorWidget(UI_TYPE type)
+    std::unique_ptr<QvPluginEditor> QvSSRPlugin::GetEditorWidget(UI_TYPE type)
     {
         switch (type)
         {
@@ -60,7 +59,7 @@ namespace SSRPlugin
             case UI_TYPE_GROUP_EDITOR: break;
             case UI_TYPE_OUTBOUND_EDITOR:
             {
-                return new SSROutboundEditor();
+                return std::make_unique<SSROutboundEditor>();
             }
         }
         return nullptr;
