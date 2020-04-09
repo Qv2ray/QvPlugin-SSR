@@ -39,7 +39,7 @@ add_library(${PROJECT_NAME} MODULE
 if(APPLE)
     add_custom_command(TARGET ${PROJECT_NAME}
         POST_BUILD
-        COMMAND ${CMAKE_INSTALL_NAME_TOOL} -add_rpath "@executable_path/../../Frameworks/" $<TARGET_FILE:${PROJECT_NAME}>)
+        COMMAND ${CMAKE_INSTALL_NAME_TOOL} -add_rpath "@executable_path/../Frameworks/" $<TARGET_FILE:${PROJECT_NAME}>)
 endif()
 
 target_link_libraries(${PROJECT_NAME}
