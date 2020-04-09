@@ -18,6 +18,8 @@ include(cmake/shadowsocksr-uvw.cmake)
 include(interface/QvPluginInterface.cmake)
 include_directories(${QVPLUGIN_INTERFACE_INCLUDE_DIR})
 
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH ON)
+
 add_library(${PROJECT_NAME} MODULE
     SimplePlugin.hpp
     SimplePlugin.cpp
