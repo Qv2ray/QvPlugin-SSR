@@ -18,9 +18,6 @@ include(cmake/shadowsocksr-uvw.cmake)
 include(interface/QvPluginInterface.cmake)
 include_directories(${QVPLUGIN_INTERFACE_INCLUDE_DIR})
 
-set(CMAKE_INSTALL_RPATH_USE_LINK_PATH ON)
-
-
 add_library(${PROJECT_NAME} MODULE
     SimplePlugin.hpp
     SimplePlugin.cpp
@@ -38,6 +35,12 @@ add_library(${PROJECT_NAME} MODULE
     kernel/SSRInstance.hpp
     resx.qrc
     ${QVPLUGIN_INTERFACE_HEADERS})
+    
+if(APPLE)
+    add_custom_command(TARGET ${PROJECT_NAME}
+        POST_BUILD
+        COMMAND ${CMAKE_INSTALL_NAME_TOOL} -add_rpath "@executable_path/../../Frameworks/" $<TARGET_FILE:${PROJECT_NAME}>)
+endif()
 
 target_link_libraries(${PROJECT_NAME}
     Qt5::Core
