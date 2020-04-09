@@ -1,17 +1,16 @@
-#include "ShareLinkParser.hpp"
+#include "Serializer.hpp"
 
 #include <QObject>
 namespace SSRPlugin
 {
-
-    QJsonObject ConvertConfigFromSSRString(const QString &ssrBase64Uri, QString *alias, QString *errMessage)
+    const QJsonObject SSRSerializer::DeserializeOutbound(const QString &ssrBase64Uri, QString *alias, QString *errMessage) const
     {
         ShadowSocksRServerObject server;
         QString d_name;
         if (ssrBase64Uri.length() < 6)
         {
-            // LOG(MODULE_CONNECTION, "ssr:// string too short")
             *errMessage = QObject::tr("SSR URI is too short");
+            return {};
         }
         QRegExp regex("^(.+):([^:]+):([^:]*):([^:]+):([^:]*):([^:]+)");
         auto data = SafeBase64Decode(ssrBase64Uri.mid(6));
@@ -59,19 +58,20 @@ namespace SSRPlugin
             {
                 server.address = list[1];
                 server.port = list[2].toInt();
-                server.protocol = list[3].length() == 0 ? QString("origin") : list[3];
+                server.protocol = list[3].length() == 0 ? "origin" : list[3];
                 server.protocol = server.protocol.replace("_compatible", "");
                 server.method = list[4];
-                server.obfs = list[5].length() == 0 ? QString("plain") : list[5];
+                server.obfs = list[5].length() == 0 ? "plain" : list[5];
                 server.password = SafeBase64Decode(list[6]);
                 break;
             }
             *errMessage = QObject::tr("SSRUrl not matched regex \"^(.+):([^:]+):([^:]*):([^:]+):([^:]*):([^:]+)\"");
+            return {};
         }
         QJsonObject root;
         QJsonArray outbounds;
 
-        auto GenerateShadowSocksROUT = [](QList<ShadowSocksRServerObject> servers) {
+        auto GenerateShadowSocksROUT = [](const QList<ShadowSocksRServerObject> &servers) {
             QJsonObject root;
             QJsonArray x;
             for (const auto &server : servers)
@@ -97,13 +97,17 @@ namespace SSRPlugin
                 *alias + "_" + d_name;
         *alias = alias->trimmed();
         if (alias->isEmpty())
+        {
             *errMessage = QObject::tr("SSRUrl empty");
+            return {};
+        }
         // LOG(MODULE_CONNECTION, "Deduced alias: " + *alias)
         return root;
     }
 
-    const QString ConvertConfigToSSRString(const ShadowSocksRServerObject &server)
+    const QString SSRSerializer::SerializeOutbound(const QJsonObject &object) const
     {
+        auto server = ShadowSocksRServerObject::fromJson(object);
         QString main_part = server.address + ":" + QString::number(server.port) + ":" + server.protocol + ":" + server.method + ":" +
                             server.obfs + ":" + SafeBase64Encode(server.password);
         QString param_str = "obfsparam=" + SafeBase64Encode(server.obfs_param);

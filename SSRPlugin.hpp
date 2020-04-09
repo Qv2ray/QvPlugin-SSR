@@ -1,8 +1,8 @@
 #pragma once
 
 #include "QvPluginInterface.hpp"
-#include "SimplePluginEventHandler.hpp"
-#include "kernel/SSRInstance.hpp"
+#include "core/EventHandler.hpp"
+#include "core/kernel/SSRInstance.hpp"
 
 #include <QObject>
 #include <QtPlugin>
@@ -41,12 +41,13 @@ namespace SSRPlugin
         QWidget *GetSettingsWidget() override;
         QvPluginEditor *GetEditorWidget(UI_TYPE) override;
         QvPluginKernel *GetKernel() override;
+        QvPluginSerializer *GetSerializer() override;
+        QvPluginEventHandler *GetEventHandler() override;
         //
         bool UpdateSettings(const QJsonObject &) override;
         bool Initialize(const QString &, const QJsonObject &) override;
         const QJsonObject GetSettngs() override;
         //
-        QvPluginEventHandler *GetEventHandler() override;
       signals:
         void PluginLog(const QString &) const override;
         void PluginErrorMessageBox(const QString &) const override;
@@ -54,7 +55,8 @@ namespace SSRPlugin
       private:
         QJsonObject settings;
         QLabel *pluginWidget;
-        SimplePluginEventHandler *eventHandler;
-        ShadowsocksrInstance *kernel;
+        SSRPluginEventHandler *eventHandler;
+        QvPluginSerializer *serializer;
+        SSRKernelInstance *kernel;
     };
 } // namespace SSRPlugin

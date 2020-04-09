@@ -1,14 +1,14 @@
 #pragma once
 #include "3rdparty/shadowsocksr-uvw/src/SSRThread.hpp"
-#include "Qv2rayPluginObjects.hpp"
+#include "Qv2rayPluginProcessor.hpp"
 #include "httpProxy.hpp"
 namespace SSRPlugin
 {
-    class ShadowsocksrInstance : public Qv2rayPlugin::QvPluginKernel
+    class SSRKernelInstance : public Qv2rayPlugin::QvPluginKernel
     {
       public:
-        explicit ShadowsocksrInstance(QObject *parent = nullptr);
-        bool StartKernel(const QJsonObject &config, const QString &id) override;
+        explicit SSRKernelInstance(QObject *parent = nullptr);
+        bool StartKernel(const QJsonObject &config) override;
         bool StopKernel() override;
         const QMap<QString, QString> GetKernelOutbounds() const override
         {

@@ -13,29 +13,32 @@ set(CMAKE_AUTORCC ON)
 
 find_package(Qt5 COMPONENTS Core Widgets Gui Network REQUIRED)
 
-set(QVPLUGIN_INTERFACE_INCLUDE_DIR "interface/")
 include(cmake/shadowsocksr-uvw.cmake)
+set(QVPLUGIN_INTERFACE_INCLUDE_DIR "interface/")
 include(interface/QvPluginInterface.cmake)
 include_directories(${QVPLUGIN_INTERFACE_INCLUDE_DIR})
 
 add_library(${PROJECT_NAME} MODULE
-    SimplePlugin.hpp
-    SimplePlugin.cpp
+    SSRPlugin.hpp
+    SSRPlugin.cpp
     common/CommonHelpers.cpp
     common/CommonHelpers.hpp
-    converter/ShareLinkParser.cpp
-    converter/ShareLinkParser.hpp
-    SimplePluginEventHandler.cpp
-    SimplePluginEventHandler.hpp
-    kernel/httpProxy.cpp
-    kernel/httpProxy.hpp
-    kernel/socketStream.cpp
-    kernel/socketStream.hpp
-    kernel/SSRInstance.cpp
-    kernel/SSRInstance.hpp
+    core/Serializer.cpp
+    core/Serializer.hpp
+    core/EventHandler.cpp
+    core/EventHandler.hpp
+    core/kernel/httpProxy.cpp
+    core/kernel/httpProxy.hpp
+    core/kernel/socketStream.cpp
+    core/kernel/socketStream.hpp
+    core/kernel/SSRInstance.cpp
+    core/kernel/SSRInstance.hpp
+    ui/SSROutboundEditor.cpp
+    ui/SSROutboundEditor.hpp
+    ui/SSROutboundEditor.ui
     resx.qrc
     ${QVPLUGIN_INTERFACE_HEADERS})
-    
+
 if(APPLE)
     add_custom_command(TARGET ${PROJECT_NAME}
         POST_BUILD

@@ -22,23 +22,27 @@ namespace SSRPlugin
               group(""), port(0)
         {
         }
-#define _X_(object, json, key, type) object.key = json[#key].to##type()
-        static ShadowSocksRServerObject fromJson(const QJsonObject &o)
+#define _X_(json, key, type) this->key = json[#key].to##type()
+        void loadJson(const QJsonObject &o)
         {
-            ShadowSocksRServerObject out;
-            _X_(out, o, address, String);
-            _X_(out, o, method, String);
-            _X_(out, o, password, String);
-            _X_(out, o, protocol, String);
-            _X_(out, o, protocol_param, String);
-            _X_(out, o, obfs, String);
-            _X_(out, o, obfs_param, String);
-            _X_(out, o, remarks, String);
-            _X_(out, o, group, String);
-            _X_(out, o, port, Int);
-            return out;
+            _X_(o, address, String);
+            _X_(o, method, String);
+            _X_(o, password, String);
+            _X_(o, protocol, String);
+            _X_(o, protocol_param, String);
+            _X_(o, obfs, String);
+            _X_(o, obfs_param, String);
+            _X_(o, remarks, String);
+            _X_(o, group, String);
+            _X_(o, port, Int);
         }
 #undef _X_
+        [[nodiscard]] static ShadowSocksRServerObject fromJson(const QJsonObject &o)
+        {
+            ShadowSocksRServerObject out;
+            out.loadJson(o);
+            return out;
+        }
 #define _X_(json, key) json[#key] = key
         QJsonObject toJson() const
         {
@@ -59,5 +63,5 @@ namespace SSRPlugin
     };
 
     QString SafeBase64Decode(QString string);
-    QString SafeBase64Encode(QString string, bool trim = false);
-} // namespace QvSSRPlugin
+    QString SafeBase64Encode(const QString &string, bool trim = true);
+} // namespace SSRPlugin

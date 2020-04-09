@@ -3,21 +3,18 @@
 
 #include "3rdparty/shadowsocksr-uvw/src/SSRThread.hpp"
 #include "common/CommonHelpers.hpp"
-//#include "KernelInteractions.hpp"
-//#include "common/QvHelpers.hpp"
-//#include "core/CoreUtils.hpp"
-//#include "core/connection/ConnectionIO.hpp"
+
 #include <QJsonArray>
 #include <QJsonObject>
 #include <memory>
 
 namespace SSRPlugin
 {
-    ShadowsocksrInstance::ShadowsocksrInstance(QObject *parent) : Qv2rayPlugin::QvPluginKernel(parent)
+    SSRKernelInstance::SSRKernelInstance(QObject *parent) : Qv2rayPlugin::QvPluginKernel(parent)
     {
     }
 
-    bool ShadowsocksrInstance::StartKernel(const QJsonObject &root, const QString &id)
+    bool SSRKernelInstance::StartKernel(const QJsonObject &root)
     {
         int socks_local_port = 0;
         int http_local_port = 0;
@@ -54,8 +51,8 @@ namespace SSRPlugin
         auto protocol_param = ssrServer.protocol_param.toStdString();
         ssrThread = std::make_unique<SSRThread>(socks_local_port, remotePort, listen_address.toStdString(), remote_host, method, password, obfs,
                                                 obfs_param, protocol, protocol_param, tag);
-        ssrThread->connect(ssrThread.get(), &SSRThread::onSSRThreadLog, this, &ShadowsocksrInstance::OnKernelLogAvaliable);
-        ssrThread->connect(ssrThread.get(), &SSRThread::OnDataReady, this, &ShadowsocksrInstance::OnKernelStatsAvailable);
+        ssrThread->connect(ssrThread.get(), &SSRThread::onSSRThreadLog, this, &SSRKernelInstance::OnKernelLogAvaliable);
+        ssrThread->connect(ssrThread.get(), &SSRThread::OnDataReady, this, &SSRKernelInstance::OnKernelStatsAvailable);
         ssrThread->start();
         if (http_local_port != 0)
         {
@@ -65,7 +62,7 @@ namespace SSRPlugin
         return true;
     }
 
-    bool ShadowsocksrInstance::StopKernel()
+    bool SSRKernelInstance::StopKernel()
     {
         if (ssrThread != nullptr && ssrThread->isRunning())
         {

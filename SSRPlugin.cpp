@@ -1,4 +1,7 @@
-#include "SimplePlugin.hpp"
+#include "SSRPlugin.hpp"
+
+#include "core/Serializer.hpp"
+#include "ui/SSROutboundEditor.hpp"
 
 #include <QDateTime>
 #include <QLabel>
@@ -8,6 +11,11 @@ namespace SSRPlugin
     QvPluginKernel *QvSSRPlugin::GetKernel()
     {
         return kernel;
+    }
+
+    QvPluginSerializer *QvSSRPlugin::GetSerializer()
+    {
+        return nullptr;
     }
 
     bool QvSSRPlugin::UpdateSettings(const QJsonObject &conf)
@@ -21,8 +29,9 @@ namespace SSRPlugin
         emit PluginLog("Initialize plugin.");
         this->settings = settings;
         pluginWidget = new QLabel;
-        eventHandler = new SimplePluginEventHandler(this);
-        kernel = new ShadowsocksrInstance(this);
+        eventHandler = new SSRPluginEventHandler(this);
+        kernel = new SSRKernelInstance(this);
+        serializer = new SSRSerializer(this);
         return true;
     }
 
@@ -48,8 +57,11 @@ namespace SSRPlugin
         switch (type)
         {
             case UI_TYPE_INBOUND_EDITOR:
-            case UI_TYPE_OUTBOUND_EDITOR:
             case UI_TYPE_GROUP_EDITOR: break;
+            case UI_TYPE_OUTBOUND_EDITOR:
+            {
+                return new SSROutboundEditor();
+            }
         }
         return nullptr;
     }
