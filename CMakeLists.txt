@@ -20,6 +20,7 @@ include_directories(${QVPLUGIN_INTERFACE_INCLUDE_DIR})
 
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH ON)
 
+
 add_library(${PROJECT_NAME} MODULE
     SimplePlugin.hpp
     SimplePlugin.cpp
@@ -43,4 +44,5 @@ target_link_libraries(${PROJECT_NAME}
     Qt5::Gui
     Qt5::Widgets
     Qt5::Network
-    ${SHADOWSOCKSR_UVW_LIBRARY})
+    ${SHADOWSOCKSR_UVW_LIBRARY}
+    -rpath @executable_path/../Frameworks)
