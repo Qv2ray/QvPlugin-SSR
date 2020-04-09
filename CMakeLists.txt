@@ -47,5 +47,4 @@ target_link_libraries(${PROJECT_NAME}
     Qt5::Gui
     Qt5::Widgets
     Qt5::Network
-    ${SHADOWSOCKSR_UVW_LIBRARY}
-    -rpath @executable_path/../Frameworks)
+    ${SHADOWSOCKSR_UVW_LIBRARY})
