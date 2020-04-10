@@ -42,8 +42,7 @@ namespace SSRPlugin
 
     std::shared_ptr<QvPluginEventHandler> QvSSRPlugin::GetEventHandler()
     {
-        auto ptr = std::static_pointer_cast<QvPluginEventHandler>(eventHandler);
-        return ptr;
+        return eventHandler;
     }
 
     std::unique_ptr<QWidget> QvSSRPlugin::GetSettingsWidget()

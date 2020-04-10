@@ -4,6 +4,7 @@ namespace SSRPlugin
 {
     SSROutboundEditor::SSROutboundEditor(QWidget *parent) : Qv2rayPlugin::QvPluginEditor(parent)
     {
+        setupUi(this);
     }
 
     SSROutboundEditor::~SSROutboundEditor()
@@ -25,10 +26,12 @@ namespace SSRPlugin
         shadowsocksR.loadJson(content);
         //
         ssrPasswordTxt->setText(shadowsocksR.password);
+        ssrMethodCombo->setCurrentText(shadowsocksR.method);
+        //
         ssrObfsCombo->setCurrentText(shadowsocksR.obfs);
+        ssrObfsParamsTxt->setText(shadowsocksR.obfs_param);
         ssrProtocolCombo->setCurrentText(shadowsocksR.protocol);
         ssrProtocolParamsTxt->setText(shadowsocksR.protocol_param);
-        ssrObfsParamsTxt->setText(shadowsocksR.obfs_param);
     }
 
     const QJsonObject SSROutboundEditor::GetContent() const
