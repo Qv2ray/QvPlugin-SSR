@@ -25,7 +25,7 @@ namespace SSRPlugin
         void SwitchOutbound(const QString &) override{};
         QList<Qv2rayPlugin::QvPluginOutboundObject> OutboundCapabilities() const override
         {
-            return { { "shadowsocksr", "ShadowSocksR" } };
+            return { { "ShadowSocksR", "shadowsocksr" } };
         }
       private slots:
         void on_ssrPasswordTxt_textEdited(const QString &arg1);

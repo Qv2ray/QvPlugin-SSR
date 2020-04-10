@@ -12,7 +12,18 @@ namespace SSRPlugin
         Q_OBJECT
       public:
         explicit SSRSerializer(QObject *parent = nullptr) : Qv2rayPlugin::QvPluginSerializer(parent){};
-        const QString SerializeOutbound(const QJsonObject &) const override;
-        const QJsonObject DeserializeOutbound(const QString &, QString *alias, QString *errorMessage) const override;
+        const QString SerializeOutbound(const QString &protocol,  //
+                                        const QString &alias,     //
+                                        const QString &groupName, //
+                                        const QJsonObject &object) const override;
+        const QPair<QString, QJsonObject> DeserializeOutbound(const QString &link, QString *alias, QString *errorMessage) const override;
+        const QList<QString> ShareLinkPrefixes() const override
+        {
+            return { "ssr://" };
+        };
+        const QList<QString> OutboundProtocols() const override
+        {
+            return { "shadowsocksr" };
+        }
     };
-} // namespace SSRPlugin
+}; // namespace SSRPlugin

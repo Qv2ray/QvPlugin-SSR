@@ -3,7 +3,7 @@
 #include <QObject>
 namespace SSRPlugin
 {
-    const QJsonObject SSRSerializer::DeserializeOutbound(const QString &ssrBase64Uri, QString *alias, QString *errMessage) const
+    const QPair<QString, QJsonObject> SSRSerializer::DeserializeOutbound(const QString &ssrBase64Uri, QString *alias, QString *errMessage) const
     {
         ShadowSocksRServerObject server;
         QString d_name;
@@ -68,62 +68,43 @@ namespace SSRPlugin
             *errMessage = QObject::tr("SSRUrl not matched regex \"^(.+):([^:]+):([^:]*):([^:]+):([^:]*):([^:]+)\"");
             return {};
         }
-        QJsonObject root;
-        QJsonArray outbounds;
 
-        auto GenerateShadowSocksROUT = [](const QList<ShadowSocksRServerObject> &servers) {
-            QJsonObject root;
-            QJsonArray x;
-            for (const auto &server : servers)
-            {
-                x.append(server.toJson());
-            }
-            root.insert("servers", x);
-            return root;
-        };
-
-        auto GenerateOutboundEntry = [](const QString &protocol, const QJsonObject &settings) {
-            QJsonObject root;
-            root.insert("protocol", protocol);
-            root.insert("settings", settings);
-            return root;
-        };
-
-        outbounds.append(GenerateOutboundEntry("shadowsocksr", GenerateShadowSocksROUT(QList<ShadowSocksRServerObject>() << server)));
-        root.insert("outbounds", outbounds);
+        QJsonObject root = server.toJson();
         *alias =
-            alias->isEmpty() ?
-                d_name.isEmpty() ? server.address + server.port + server.group + server.protocol + server.method + server.password : d_name :
-                *alias + "_" + d_name;
+            alias->isEmpty()                                                                                                                  //
+                ?                                                                                                                             //
+                (d_name.isEmpty() ? server.address + server.port + server.group + server.protocol + server.method + server.password : d_name) //
+                :                                                                                                                             //
+                *alias + "_" + d_name;                                                                                                        //
         *alias = alias->trimmed();
         if (alias->isEmpty())
         {
-            *errMessage = QObject::tr("SSRUrl empty");
-            return {};
+            *alias = "SSR Connection";
         }
-        // LOG(MODULE_CONNECTION, "Deduced alias: " + *alias)
-        return root;
+        return { "shadowsocksr", root };
     }
 
-    const QString SSRSerializer::SerializeOutbound(const QJsonObject &object) const
+    const QString SSRSerializer::SerializeOutbound(const QString &protocol,  //
+                                                   const QString &alias,     //
+                                                   const QString &groupName, //
+                                                   const QJsonObject &object) const
     {
+        Q_UNUSED(protocol)
         auto server = ShadowSocksRServerObject::fromJson(object);
-        QString main_part = server.address + ":" + QString::number(server.port) + ":" + server.protocol + ":" + server.method + ":" +
-                            server.obfs + ":" + SafeBase64Encode(server.password);
-        QString param_str = "obfsparam=" + SafeBase64Encode(server.obfs_param);
+        auto main_part = server.address +                     //
+                         ":" + QString::number(server.port) + //
+                         ":" + server.protocol +              //
+                         ":" + server.method +                //
+                         ":" + server.obfs +                  //
+                         ":" + SafeBase64Encode(server.password);
+        auto param_str = "obfsparam=" + SafeBase64Encode(server.obfs_param);
         if (!server.protocol_param.isEmpty())
         {
             param_str += "&protoparam=" + SafeBase64Encode(server.protocol_param);
         }
-        if (!server.remarks.isEmpty())
-        {
-            param_str += "&remarks=" + SafeBase64Encode(server.remarks);
-        }
-        if (!server.group.isEmpty())
-        {
-            param_str += "&group=" + SafeBase64Encode(server.group);
-        }
-        QString base64 = SafeBase64Encode(main_part + "/?" + param_str);
+        param_str += "&remarks=" + SafeBase64Encode(alias);
+        param_str += "&group=" + SafeBase64Encode(groupName);
+        auto base64 = SafeBase64Encode(main_part + "/?" + param_str);
         return "ssr://" + base64;
     }
 } // namespace SSRPlugin
