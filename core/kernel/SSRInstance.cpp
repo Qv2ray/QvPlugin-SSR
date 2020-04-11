@@ -14,43 +14,34 @@ namespace SSRPlugin
     {
     }
 
-    bool SSRKernelInstance::StartKernel(const QJsonObject &root)
+    void SSRKernelInstance::SetConnectionSettings(const QString &listenAddress, const QMap<QString, int> &inbound, const QJsonObject &settings)
     {
-        int socks_local_port = 0;
-        int http_local_port = 0;
-        QString tag;
-        QString listen_address;
-        for (const auto &item : root["inbounds"].toArray())
-        {
-            auto protocol = item.toObject()["protocol"].toString(QObject::tr("N/A"));
-            if (protocol == "socks")
-            {
-                tag = item.toObject()["tag"].toString("");
-                socks_local_port = item.toObject()["port"].toInt(0);
-                listen_address = item.toObject()["listen"].toString("");
-            }
-            else if (protocol == "http")
-            {
-                http_local_port = item.toObject()["port"].toInt(0);
-            }
-        }
-        if (socks_local_port == 0)
-        {
-            // socks must enabled
-            return false;
-        }
-        auto outbound = root["outbounds"].toArray().first().toObject();
-        auto ssrServer = ShadowSocksRServerObject::fromJson(outbound["settings"].toObject()["servers"].toArray().first().toObject());
-        auto remotePort = ssrServer.port;
-        auto remote_host = ssrServer.address.toStdString();
-        auto method = ssrServer.method.toStdString();
-        auto password = ssrServer.password.toStdString();
-        auto obfs = ssrServer.obfs.toStdString();
-        auto obfs_param = ssrServer.obfs_param.toStdString();
-        auto protocol = ssrServer.protocol.toStdString();
-        auto protocol_param = ssrServer.protocol_param.toStdString();
-        ssrThread = std::make_unique<SSRThread>(socks_local_port, remotePort, listen_address.toStdString(), remote_host, method, password, obfs,
-                                                obfs_param, protocol, protocol_param, tag);
+        this->listen_address = listenAddress;
+        socks_local_port = inbound["socks"];
+        http_local_port = inbound["http"];
+        outbound.loadJson(settings);
+    }
+
+    bool SSRKernelInstance::StartKernel()
+    {
+        auto remotePort = outbound.port;
+        auto remote_host = outbound.address.toStdString();
+        auto method = outbound.method.toStdString();
+        auto password = outbound.password.toStdString();
+        auto obfs = outbound.obfs.toStdString();
+        auto obfs_param = outbound.obfs_param.toStdString();
+        auto protocol = outbound.protocol.toStdString();
+        auto protocol_param = outbound.protocol_param.toStdString();
+        ssrThread = std::make_unique<SSRThread>(socks_local_port,             //
+                                                remotePort,                   //
+                                                listen_address.toStdString(), //
+                                                remote_host,                  //
+                                                method,                       //
+                                                password,                     //
+                                                obfs,                         //
+                                                obfs_param,                   //
+                                                protocol,                     //
+                                                protocol_param);
         ssrThread->connect(ssrThread.get(), &SSRThread::onSSRThreadLog, this, &SSRKernelInstance::OnKernelLogAvaliable);
         ssrThread->connect(ssrThread.get(), &SSRThread::OnDataReady, this, &SSRKernelInstance::OnKernelStatsAvailable);
         ssrThread->start();
@@ -64,10 +55,9 @@ namespace SSRPlugin
 
     bool SSRKernelInstance::StopKernel()
     {
-        if (ssrThread != nullptr && ssrThread->isRunning())
-        {
-            ssrThread = std::make_unique<SSRThread>();
-        }
+        ssrThread.reset();
+        httpProxy.reset();
+        ssrThread = nullptr;
         httpProxy = nullptr;
         return true;
     }
