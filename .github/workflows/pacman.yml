@@ -32,7 +32,8 @@ jobs:
           arch=('x86_64')
           url='https://github.com/Qv2ray/QvPlugin-SSR'
           license=('GPL3')
-          depends=('qt5-base>5.11.0' 'qv2ray-plugin-host=1' 'openssl' 'libuv' 'libsodium')
+          _virtualdepends=('qv2ray-plugin-host=1')
+          depends=('qt5-base>5.11.0' 'openssl' 'libuv' 'libsodium')
           optdepends=('qv2ray')
           makedepends=('git' 'make' 'qt5-tools' 'which' 'gcc' 'cmake' 'ninja')
           provides=('qv2ray-plugin-ssr')
@@ -68,6 +69,7 @@ jobs:
           package() {
               cd "\$srcdir"/"\$_pkgname"/build
               install -Dm644 libQvSSRPlugin.so "\$pkgdir"/usr/share/qv2ray/plugins/libQvSSRPlugin.so
+              depends+=(\${_virtualdepends[@]})
               ldd libQvSSRPlugin.so
           }
           PKGBUILD
