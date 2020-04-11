@@ -35,7 +35,7 @@ jobs:
           _virtualdepends=('qv2ray-plugin-host=1')
           depends=('qt5-base>5.11.0' 'openssl' 'libuv' 'libsodium')
           optdepends=('qv2ray')
-          makedepends=('git' 'make' 'qt5-tools' 'which' 'gcc' 'cmake' 'ninja')
+          makedepends=('git' 'make' 'qt5-tools' 'which' 'gcc' 'cmake' 'ninja' 'libffi')
           provides=('qv2ray-plugin-ssr')
           conflicts=('qv2ray-plugin-ssr')
 
