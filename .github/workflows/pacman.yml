@@ -1,0 +1,96 @@
+name: Build QvSSR Arch Package
+
+on:
+  push:
+  release:
+    types: [prereleased]
+
+jobs:
+  linux:
+    name: Arch Linux
+    runs-on: ubuntu-latest
+    container: archlinux:latest
+    
+    steps:
+      - name: Setup Basic Environment
+        run: |
+          pacman -Syu base-devel git --noconfirm
+          sed -i '/E_ROOT/d' /usr/bin/makepkg
+      - name: Checking out sources
+        uses: actions/checkout@v2
+        with:
+          path: 'qv2ray-plugin-ssr'
+      
+      - name: Build
+        run: |
+          cat <<PKGBUILD > PKGBUILD
+          pkgname=qv2ray-plugin-ssr-dev-automation
+          _pkgname=qv2ray-plugin-ssr
+          pkgver=20200411.r20.ea7a893
+          pkgrel=1
+          pkgdesc="Qv2ray Plugin: ShadowsocksR"
+          arch=('x86_64')
+          url='https://github.com/Qv2ray/QvPlugin-SSR'
+          license=('GPL3')
+          _virtualdepends=('qv2ray-plugin-host=1')
+          depends=('qt5-base>5.11.0' 'openssl' 'libuv' 'libsodium')
+          optdepends=('qv2ray')
+          makedepends=('git' 'make' 'qt5-tools' 'which' 'gcc' 'cmake' 'ninja' 'libffi')
+          provides=('qv2ray-plugin-ssr')
+          conflicts=('qv2ray-plugin-ssr')
+
+          source=("\$_pkgname::git+\${url}")
+
+          sha512sums=('SKIP')
+
+          pkgver() {
+              cd "\$srcdir"/"\$_pkgname"
+              local date=\$(git log -1 --format="%cd" --date=short | sed s/-//g)
+              local count=\$(git rev-list --count HEAD)
+              local commit=\$(git rev-parse --short HEAD)
+              echo "\$date.r\${count}.\$commit"
+          }
+
+          prepare() {
+              cd "\$srcdir"/"\$_pkgname"
+              git submodule update --init
+          }
+
+          build() {
+              cd "\$srcdir"/"\$_pkgname"
+              mkdir -p build && cd build
+              cmake .. \
+                  -DCMAKE_BUILD_TYPE=Release \
+                  -DSSR_UVW_WITH_QT=1 \
+                  -GNinja
+              ninja -v
+          }
+
+          package() {
+              cd "\$srcdir"/"\$_pkgname"/build
+              install -Dm644 libQvSSRPlugin.so "\$pkgdir"/usr/share/qv2ray/plugins/libQvSSRPlugin.so
+              depends+=(\${_virtualdepends[@]})
+              ldd libQvSSRPlugin.so
+          }
+          PKGBUILD
+          makepkg -sf --noconfirm
+      - name: Get package name
+        id: get_package
+        run:
+          echo ::set-output name=NAME::$(basename qv2ray*.xz)
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2-preview
+        with:
+          name: ${{ steps.get_package.outputs.NAME }}
+          path: ${{ steps.get_package.outputs.NAME }}
+
+      - name: Upload binaries to release
+        uses: svenstaro/upload-release-action@v1-release
+        if: github.event_name == 'release'
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ${{ steps.get_package.outputs.NAME }}
+          asset_name: ${{ steps.get_package.outputs.NAME }}
+          tag: ${{ github.ref }}
+          overwrite: true
