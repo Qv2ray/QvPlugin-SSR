@@ -78,7 +78,15 @@ jobs:
         shell: bash
         if: matrix.platform == 'windows-latest'
         run: |
+         mkdir -p ./libs
          choco install -y ninja
+         curl -o ./libs/Qv2ray-deps-openssl-${{ matrix.arch }}-windows.7z -L https://github.com/DuckVador/shadowsocksr-uvw-deps/releases/download/release/Qv2ray-deps-openssl-${{ matrix.arch }}-windows.7z
+      - name: Win-${{ matrix.arch }} - Build preparation - Extract Dependencies
+        if: matrix.platform == 'windows-latest'
+        uses: DuckSoft/extract-7z-action@v1.0
+        with:
+          pathSource: ./libs/Qv2ray-deps-openssl-${{ matrix.arch }}-windows.7z
+          pathTarget: ./libs
 # ========================================================================================================= Generate MakeFile and Build
       - name: Windows - ${{ matrix.qt_version }} - Generate Dependencies and Build
         shell: bash
@@ -89,7 +97,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake .. -DCMAKE_BUILD_TYPE=Release -A ${{ matrix.cmakearch }}
+          cmake .. -DCMAKE_BUILD_TYPE=Release -A ${{ matrix.cmakearch }} -DVCPKG_TARGET_TRIPLET=${{ matrix.arch }}-windows-static
           cmake --build . --parallel $(nproc) --config Release
 # --------------------------------------------------------
       - name: macOS - ${{ matrix.qt_version }} - Generate Dependencies and Build
