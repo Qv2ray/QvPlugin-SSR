@@ -53,7 +53,7 @@ jobs:
 
           prepare() {
               cd "\$srcdir"/"\$_pkgname"
-              git submodule update --init
+              git submodule update --init --recursive
           }
 
           build() {
