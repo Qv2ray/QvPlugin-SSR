@@ -1,6 +1,6 @@
 #pragma once
 #include "3rdparty/shadowsocksr-uvw/src/SSRThread.hpp"
-#include "Qv2rayPluginProcessor.hpp"
+#include "QvPluginProcessor.hpp"
 #include "common/CommonHelpers.hpp"
 #include "httpProxy.hpp"
 namespace SSRPlugin

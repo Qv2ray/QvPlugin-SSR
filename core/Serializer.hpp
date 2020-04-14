@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Qv2rayPluginProcessor.hpp"
+#include "QvPluginProcessor.hpp"
 #include "common/CommonHelpers.hpp"
 
 #include <QList>
