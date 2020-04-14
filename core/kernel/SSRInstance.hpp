@@ -12,7 +12,7 @@ namespace SSRPlugin
         bool StartKernel() override;
         bool StopKernel() override;
         void SetConnectionSettings(const QString &listen_address, const QMap<QString, int> &inbound, const QJsonObject &settings) override;
-        const QList<Qv2rayPlugin::QvPluginOutboundObject> KernelOutboundCapabilities() const override
+        const QList<Qv2rayPlugin::QvPluginOutboundProtocolObject> KernelOutboundCapabilities() const override
         {
             return { { "ShadowSocksR", "shadowsocksr" } };
         }

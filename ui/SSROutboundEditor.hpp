@@ -23,7 +23,7 @@ namespace SSRPlugin
         const QJsonObject GetContent() const override;
         //
         void SwitchOutbound(const QString &) override{};
-        QList<Qv2rayPlugin::QvPluginOutboundObject> OutboundCapabilities() const override
+        QList<Qv2rayPlugin::QvPluginOutboundProtocolObject> OutboundCapabilities() const override
         {
             return { { "ShadowSocksR", "shadowsocksr" } };
         }
