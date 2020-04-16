@@ -2,7 +2,7 @@
 #include "3rdparty/shadowsocksr-uvw/src/SSRThread.hpp"
 #include "QvPluginProcessor.hpp"
 #include "common/CommonHelpers.hpp"
-#include "httpProxy.hpp"
+#include "utils/HttpProxy.hpp"
 namespace SSRPlugin
 {
     class SSRKernelInstance : public Qv2rayPlugin::QvPluginKernel
@@ -22,7 +22,7 @@ namespace SSRPlugin
         int http_local_port;
         QString listen_address;
         ShadowSocksRServerObject outbound;
-        std::unique_ptr<HttpProxy> httpProxy;
+        std::unique_ptr<Qv2rayPlugin::Utils::HttpProxy> httpProxy;
         std::unique_ptr<SSRThread> ssrThread;
     };
 } // namespace SSRPlugin

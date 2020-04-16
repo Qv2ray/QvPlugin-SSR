@@ -47,7 +47,7 @@ namespace SSRPlugin
         ssrThread->start();
         if (http_local_port != 0)
         {
-            httpProxy = std::make_unique<HttpProxy>();
+            httpProxy = std::make_unique<Qv2rayPlugin::Utils::HttpProxy>();
             httpProxy->httpListen(QHostAddress{ listen_address }, http_local_port, socks_local_port);
         }
         return true;

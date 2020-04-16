@@ -16,6 +16,7 @@ find_package(Qt5 COMPONENTS Core Widgets Gui Network REQUIRED)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 include(cmake/shadowsocksr-uvw.cmake)
 set(QVPLUGIN_INTERFACE_INCLUDE_DIR "interface/")
+set(QVPLUGIN_HAS_HTTP_TO_SOCKS_HELPER ON)
 include(interface/QvPluginInterface.cmake)
 include_directories(${QVPLUGIN_INTERFACE_INCLUDE_DIR})
 
@@ -28,10 +29,6 @@ add_library(${PROJECT_NAME} MODULE
     core/Serializer.hpp
     core/EventHandler.cpp
     core/EventHandler.hpp
-    core/kernel/httpProxy.cpp
-    core/kernel/httpProxy.hpp
-    core/kernel/socketStream.cpp
-    core/kernel/socketStream.hpp
     core/kernel/SSRInstance.cpp
     core/kernel/SSRInstance.hpp
     ui/SSROutboundEditor.cpp
