@@ -62,6 +62,10 @@ jobs:
               cmake .. \
                   -DCMAKE_BUILD_TYPE=Release \
                   -DSSR_UVW_WITH_QT=1 \
+                  -DUSE_SYSTEM_SODIUM=ON \
+                  -DUSE_SYSTEM_LIBUV=ON \
+                  -DSTATIC_LINK_LIBUV=OFF \
+                  -DSTATIC_LINK_SODIUM=OFF \
                   -GNinja
               ninja -v
           }
