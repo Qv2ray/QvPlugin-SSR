@@ -115,6 +115,7 @@ jobs:
         env:
           CC: /usr/bin/gcc-9
           CXX: /usr/bin/g++-9
+          CXXFLAGS: -fno-sized-deallocation
         run: |
           mkdir build
           cd build
