@@ -18,8 +18,8 @@ namespace SSRPlugin
         QString group;   // Unused
         int port;
         ShadowSocksRServerObject()
-            : address("0.0.0.0"), method("aes-256-cfb"), password(""), protocol(""), protocol_param(""), obfs(""), obfs_param(""), remarks(""),
-              group(""), port(0)
+            : address("0.0.0.0"), method("rc4"), password(""), protocol("origin"), protocol_param(""), obfs("plain"), obfs_param(""),
+              remarks(""), group(""), port(0)
         {
         }
 #define _X_(json, key, type) this->key = json[#key].to##type()
