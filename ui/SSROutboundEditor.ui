@@ -35,6 +35,11 @@
     <widget class="QComboBox" name="ssrMethodCombo">
      <item>
       <property name="text">
+       <string>none</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
        <string notr="true">rc4</string>
       </property>
      </item>
@@ -187,6 +192,26 @@
      <item>
       <property name="text">
        <string notr="true">auth_chain_b</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>auth_chain_c</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>auth_chain_d</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>auth_chain_e</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>auth_chain_f</string>
       </property>
      </item>
     </widget>
