@@ -20,6 +20,7 @@ namespace SSRPlugin
       private:
         int socks_local_port;
         int http_local_port;
+        bool enable_udp;
         QString listen_address;
         ShadowSocksRServerObject outbound;
         std::unique_ptr<Qv2rayPlugin::Utils::HttpProxy> httpProxy;

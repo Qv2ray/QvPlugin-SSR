@@ -19,6 +19,7 @@ namespace SSRPlugin
         this->listen_address = listenAddress;
         socks_local_port = inbound["socks"];
         http_local_port = inbound["http"];
+        enable_udp = inbound["enable_udp"];
         outbound.loadJson(settings);
     }
 
@@ -32,8 +33,12 @@ namespace SSRPlugin
         auto obfs_param = outbound.obfs_param.toStdString();
         auto protocol = outbound.protocol.toStdString();
         auto protocol_param = outbound.protocol_param.toStdString();
+        auto mode = static_cast<SSRThread::SSR_WORK_MODE>(enable_udp);
         ssrThread = std::make_unique<SSRThread>(socks_local_port,             //
                                                 remotePort,                   //
+                                                60000,
+                                                1500,
+                                                mode,
                                                 listen_address.toStdString(), //
                                                 remote_host,                  //
                                                 method,                       //
