@@ -32,7 +32,7 @@ namespace SSRPlugin
         }
         // If the socks has been disabled
         if (socks_local_port == 0)
-            socks_local_port = http_local_port + 1;
+            socks_local_port = http_local_port + 100;
         auto remotePort = outbound.port;
         auto remote_host = outbound.address.toStdString();
         auto method = outbound.method.toStdString();
