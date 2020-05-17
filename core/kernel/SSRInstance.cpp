@@ -14,17 +14,25 @@ namespace SSRPlugin
     {
     }
 
-    void SSRKernelInstance::SetConnectionSettings(const QString &listenAddress, const QMap<QString, int> &inbound, const QJsonObject &settings)
+    void SSRKernelInstance::SetConnectionSettings(const QMap<KernelSetting, QVariant> &options, const QJsonObject &settings)
     {
-        this->listen_address = listenAddress;
-        socks_local_port = inbound["socks"];
-        http_local_port = inbound["http"];
-        enable_udp = inbound["enable_udp"];
+        this->listen_address = options[KERNEL_LISTEN_ADDRESS].toString();
+        socks_local_port = options[KERNEL_SOCKS_ENABLED].toBool() ? options[KERNEL_SOCKS_PORT].toInt() : 0;
+        http_local_port = options[KERNEL_HTTP_ENABLED].toBool() ? options[KERNEL_HTTP_PORT].toInt() : 0;
+        enable_udp = options[KERNEL_SOCKS_UDP_ENABLED].toBool();
         outbound.loadJson(settings);
     }
 
     bool SSRKernelInstance::StartKernel()
     {
+        if (socks_local_port == 0 && http_local_port == 0)
+        {
+            emit OnKernelCrashed("Both HTTP and SOCKS are not enabled");
+            return false;
+        }
+        // If the socks has been disabled
+        if (socks_local_port == 0)
+            socks_local_port = http_local_port + 1;
         auto remotePort = outbound.port;
         auto remote_host = outbound.address.toStdString();
         auto method = outbound.method.toStdString();
@@ -36,9 +44,7 @@ namespace SSRPlugin
         auto mode = static_cast<SSRThread::SSR_WORK_MODE>(enable_udp);
         ssrThread = std::make_unique<SSRThread>(socks_local_port,             //
                                                 remotePort,                   //
-                                                60000,
-                                                1500,
-                                                mode,
+                                                60000, 1500, mode,            //
                                                 listen_address.toStdString(), //
                                                 remote_host,                  //
                                                 method,                       //
@@ -47,7 +53,7 @@ namespace SSRPlugin
                                                 obfs_param,                   //
                                                 protocol,                     //
                                                 protocol_param);
-        ssrThread->connect(ssrThread.get(), &SSRThread::onSSRThreadLog, this, &SSRKernelInstance::OnKernelLogAvaliable);
+        ssrThread->connect(ssrThread.get(), &SSRThread::onSSRThreadLog, this, &SSRKernelInstance::OnKernelLogAvailable);
         ssrThread->connect(ssrThread.get(), &SSRThread::OnDataReady, this, &SSRKernelInstance::OnKernelStatsAvailable);
         ssrThread->start();
         if (http_local_port != 0)

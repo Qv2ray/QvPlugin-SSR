@@ -24,7 +24,7 @@ namespace SSRPlugin
         // Basic metainfo of this plugin
         const QvPluginMetadata GetMetadata() const override
         {
-            return QvPluginMetadata{
+            auto x = QvPluginMetadata{
                 "SSR Plugin",                         //
                 "Qv2ray Development Group",           //
                 "qvplugin_ssr",                       //
@@ -34,11 +34,13 @@ namespace SSRPlugin
                 { SPECIAL_TYPE_KERNEL,                //
                   SPECIAL_TYPE_SERIALIZOR }           //
             };
+            x.KernelOutboundCapabilities = { { "ShadowSocksR", "shadowsocksr" } };
+            return x;
         }
         //
         std::unique_ptr<QWidget> GetSettingsWidget() override;
         std::unique_ptr<QvPluginEditor> GetEditorWidget(UI_TYPE) override;
-        std::shared_ptr<QvPluginKernel> GetKernel() override;
+        std::unique_ptr<QvPluginKernel> CreateKernel() override;
         std::shared_ptr<QvPluginSerializer> GetSerializer() override;
         std::shared_ptr<QvPluginEventHandler> GetEventHandler() override;
         //
@@ -54,6 +56,5 @@ namespace SSRPlugin
         QJsonObject settings;
         std::shared_ptr<SSRPluginEventHandler> eventHandler;
         std::shared_ptr<SSRSerializer> serializer;
-        std::shared_ptr<SSRKernelInstance> kernel;
     };
 } // namespace SSRPlugin
