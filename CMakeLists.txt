@@ -49,3 +49,5 @@ target_link_libraries(${PROJECT_NAME}
     Qt5::Widgets
     Qt5::Network
     ${SHADOWSOCKSR_UVW_LIBRARY})
+
+install(TARGETS ${PROJECT_NAME} DESTINATION share/qv2ray/plugins)
