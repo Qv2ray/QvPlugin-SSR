@@ -8,9 +8,9 @@
 #include <QMetaEnum>
 namespace SSRPlugin
 {
-    std::shared_ptr<QvPluginKernel> QvSSRPlugin::GetKernel()
+    std::unique_ptr<QvPluginKernel> QvSSRPlugin::CreateKernel()
     {
-        return kernel;
+        return std::make_unique<SSRKernelInstance>();
     }
 
     std::shared_ptr<QvPluginSerializer> QvSSRPlugin::GetSerializer()
@@ -29,7 +29,6 @@ namespace SSRPlugin
         emit PluginLog("Initialize plugin.");
         this->settings = settings;
         eventHandler = std::make_shared<SSRPluginEventHandler>(this);
-        kernel = std::make_shared<SSRKernelInstance>(this);
         serializer = std::make_shared<SSRSerializer>(this);
         return true;
     }
