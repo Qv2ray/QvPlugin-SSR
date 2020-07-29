@@ -81,7 +81,7 @@ jobs:
       - name: Get package name
         id: get_package
         run:
-          echo ::set-output name=NAME::$(basename qv2ray*.zst)
+          echo ::set-output name=NAME::$(basename qv2ray*.pkg.tar.*)
 
       - name: Upload artifact
         uses: actions/upload-artifact@v2-preview
