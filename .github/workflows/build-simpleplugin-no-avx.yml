@@ -1,0 +1,172 @@
+name: Build QvSSR Plugin No AVX - cmake
+
+on: 
+  push:
+  release:
+    types: [prereleased]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        qt_version: [5.11.3]
+        platform: [ubuntu-16.04, macos-latest, windows-latest]
+        arch: [x86, x64]
+        include: 
+          - platform: windows-latest
+            arch: x86
+            qtarch: win32_msvc2015
+            cmakearch: Win32
+          - platform: windows-latest
+            arch: x64
+            qtarch: win64_msvc2015_64
+            cmakearch: x64
+        exclude:
+          - platform: ubuntu-16.04
+            arch: x86
+          - platform: macos-latest
+            arch: x86
+      fail-fast: false
+        
+    runs-on: ${{ matrix.platform }}
+    
+    steps:
+      - name: Get the version
+        id: get_version
+        shell: bash
+        run: echo ::set-output name=VERSION::$(echo $GITHUB_REF | cut -d / -f 3)
+      - name: Get Plugin Name
+        id: get_name
+        shell: bash
+        run: echo ::set-output name=NAME::QvSSRPlugin
+      - name: Checking out sources
+        uses: actions/checkout@v2
+        with:
+          submodules: 'recursive'
+      - name: Install Python 3.7 version
+        uses: actions/setup-python@v1
+        with:
+          python-version: '3.7'
+          architecture: ${{ matrix.arch }}
+# =========================================================================================================
+      - name: Install MSVC compiler
+        if: matrix.platform == 'windows-latest'
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          toolset: 14.2
+          arch: ${{ matrix.arch }}
+      - name: Cache Qt
+        id: cache-qt
+        uses: actions/cache@v1
+        with:
+          path: ../Qt
+          key: QtCache-${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.qt_version }}-${{ matrix.qtarch }}
+      - name: Installing Qt - ${{ matrix.arch }}
+        uses: jurplel/install-qt-action@v2.5.3
+        with:
+          version: ${{ matrix.qt_version }}
+          arch: ${{ matrix.qtarch }}
+          cached: ${{ steps.cache-qt.outputs.cache-hit }}
+      - name: Linux - ${{ matrix.qt_version }} - Build preparation - Install Packages 
+        if: matrix.platform == 'ubuntu-16.04'
+        run: |
+          sudo add-apt-repository ppa:carsten-uppenbrink-net/openssl
+          sudo add-apt-repository ppa:savoury1/backports
+          sudo apt update
+          sudo apt install -y libgl-dev libx11-dev libxkbcommon-x11-dev libssl-dev tree ninja-build
+      - name: Win-${{ matrix.arch }} - ${{ matrix.qt_version }} - Build preparation - Download Dependencies
+        shell: bash
+        if: matrix.platform == 'windows-latest'
+        run: |
+         mkdir -p ./libs
+         choco install -y ninja
+         curl -o ./libs/Qv2ray-deps-openssl-${{ matrix.arch }}-windows.7z -L https://github.com/DuckVador/shadowsocksr-uvw-deps/releases/download/release/Qv2ray-deps-openssl-${{ matrix.arch }}-windows.7z
+      - name: Win-${{ matrix.arch }} - Build preparation - Extract Dependencies
+        if: matrix.platform == 'windows-latest'
+        uses: DuckSoft/extract-7z-action@v1.0
+        with:
+          pathSource: ./libs/Qv2ray-deps-openssl-${{ matrix.arch }}-windows.7z
+          pathTarget: ./libs
+# ========================================================================================================= Generate MakeFile and Build
+      - name: Windows - ${{ matrix.qt_version }} - Generate Dependencies and Build
+        shell: bash
+        if: matrix.platform == 'windows-latest'
+        env:
+          CC: cl.exe
+          CXX: cl.exe
+        run: |
+          mkdir build
+          cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release -A ${{ matrix.cmakearch }} -DVCPKG_TARGET_TRIPLET=${{ matrix.arch }}-windows-static -DHAVE_AVX512FINTRIN_H=0 -DHAVE_AVXINTRIN_H=0 -DHAVE_AVX2INTRIN_H=0 -DHAVE_AVX_ASM=0
+          cmake --build . --parallel $(nproc) --config Release
+# --------------------------------------------------------
+      - name: macOS - ${{ matrix.qt_version }} - Generate Dependencies and Build
+        shell: bash
+        if: matrix.platform == 'macos-latest'
+        run: |
+          sudo xcode-select -s "/Applications/Xcode_10.3.app"
+          mkdir build
+          cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl@1.1 -DOPENSSL_LIBRARIES=/usr/local/opt/openssl@1.1/lib -DOPENSSL_USE_STATIC_LIBS=ON -DMACOSX_DEPLOYMENT_TARGET=10.13  -DHAVE_AVX512FINTRIN_H=0 -DHAVE_AVXINTRIN_H=0 -DHAVE_AVX2INTRIN_H=0 -DHAVE_AVX_ASM=0
+          cmake --build . --parallel $(sysctl -n hw.logicalcpu)
+# --------------------------------------------------------
+      - name: Linux - ${{ matrix.qt_version }} - Generate Dependencies and Build
+        if: matrix.platform == 'ubuntu-16.04'
+        shell: bash
+        env:
+          CC: /usr/bin/gcc-7
+          CXX: /usr/bin/g++-7
+          CXXFLAGS: -fno-sized-deallocation
+        run: |
+          mkdir build
+          cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release -DHAVE_AVX512FINTRIN_H=0 -DHAVE_AVXINTRIN_H=0 -DHAVE_AVX2INTRIN_H=0 -DHAVE_AVX_ASM=0
+          cmake --build . --parallel $(nproc)
+# ========================================================================================================= Deployments
+      - name: Win-${{ matrix.arch }} - ${{ matrix.qt_version }} - Uploading artifact
+        if: matrix.platform == 'windows-latest'
+        uses: actions/upload-artifact@master
+        with:
+          name: ${{ steps.get_name.outputs.NAME }}-${{ github.sha }}.Windows-no-avx-${{ matrix.arch }}.qt${{ matrix.qt_version }}.dll
+          path: build/Release/${{ steps.get_name.outputs.NAME }}.dll
+      - name: Win-${{ matrix.arch }} - ${{ matrix.qt_version }} - Upload binaries to release
+        uses: svenstaro/upload-release-action@v1-release
+        if: github.event_name == 'release' && matrix.platform == 'windows-latest'
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: build/Release/${{ steps.get_name.outputs.NAME }}.dll
+          asset_name: ${{ steps.get_name.outputs.NAME }}.${{ steps.get_version.outputs.VERSION }}.Windows-no-avx-${{ matrix.arch }}.dll
+          tag: ${{ github.ref }}
+          overwrite: true
+# --------------------------------------------------------
+      - name: macOS - ${{ matrix.qt_version }} - Uploading Artifact
+        if: matrix.platform == 'macos-latest'
+        uses: actions/upload-artifact@master
+        with:
+          name: ${{ steps.get_name.outputs.NAME }}-${{ github.sha }}.macOS-no-avx-${{ matrix.arch }}.qt${{ matrix.qt_version }}.so
+          path: build/lib${{ steps.get_name.outputs.NAME }}.so
+      - name: macOS - ${{ matrix.qt_version }} - Upload binaries to release
+        uses: svenstaro/upload-release-action@v1-release
+        if: github.event_name == 'release' && matrix.platform == 'macos-latest'
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: build/lib${{ steps.get_name.outputs.NAME }}.so
+          asset_name: ${{ steps.get_name.outputs.NAME }}.${{ steps.get_version.outputs.VERSION }}.macOS-no-avx-${{ matrix.arch }}.so
+          tag: ${{ github.ref }}
+          overwrite: true
+# --------------------------------------------------------
+      - name: Linux - ${{ matrix.qt_version }} - Uploading artifact
+        if: matrix.platform == 'ubuntu-16.04'
+        uses: actions/upload-artifact@master
+        with:
+          name: ${{ steps.get_name.outputs.NAME }}-${{ github.sha }}.linux-no-avx-${{ matrix.arch }}.qt${{ matrix.qt_version }}.so
+          path: build/lib${{ steps.get_name.outputs.NAME }}.so
+      - name: Linux - ${{ matrix.qt_version }} - Upload binaries to release
+        uses: svenstaro/upload-release-action@v1-release
+        if: github.event_name == 'release' && matrix.platform == 'ubuntu-16.04'
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: build/lib${{ steps.get_name.outputs.NAME }}.so
+          asset_name: ${{ steps.get_name.outputs.NAME }}.${{ steps.get_version.outputs.VERSION }}.linux-no-avx-${{ matrix.arch }}.so
+          tag: ${{ github.ref }}
+          overwrite: true
