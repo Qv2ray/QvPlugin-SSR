@@ -1,4 +1,4 @@
-name: Build QvSSR Plugin - cmake
+name: Build QvSSR Plugin No AVX - cmake
 
 on: 
   push:
