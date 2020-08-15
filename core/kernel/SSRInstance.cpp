@@ -10,11 +10,11 @@
 
 namespace SSRPlugin
 {
-    SSRKernelInstance::SSRKernelInstance(QObject *parent) : Qv2rayPlugin::QvPluginKernel(parent)
+    SSRKernelInstance::SSRKernelInstance() : PluginKernel()
     {
     }
 
-    void SSRKernelInstance::SetConnectionSettings(const QMap<KernelSetting, QVariant> &options, const QJsonObject &settings)
+    void SSRKernelInstance::SetConnectionSettings(const QMap<KernelOptionFlags, QVariant> &options, const QJsonObject &settings)
     {
         this->listen_address = options[KERNEL_LISTEN_ADDRESS].toString();
         socks_local_port = options[KERNEL_SOCKS_ENABLED].toBool() ? options[KERNEL_SOCKS_PORT].toInt() : 0;

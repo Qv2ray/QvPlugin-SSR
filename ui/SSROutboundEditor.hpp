@@ -2,6 +2,7 @@
 
 #include "QvPluginProcessor.hpp"
 #include "common/CommonHelpers.hpp"
+#include "interface/QvGUIPluginInterface.hpp"
 #include "ui_SSROutboundEditor.h"
 
 #include <QWidget>
@@ -13,20 +14,13 @@ namespace SSRPlugin
         , private Ui::SSROutboundEditor
     {
         Q_OBJECT
-
       public:
         explicit SSROutboundEditor(QWidget *parent = nullptr);
         ~SSROutboundEditor();
-        void SetHostInfo(const QString &address, int port) override;
+        void SetHostAddress(const QString &address, int port) override;
         void SetContent(const QJsonObject &) override;
-        QPair<QString, int> GetHostInfo() const override;
+        QPair<QString, int> GetHostAddress() const override;
         const QJsonObject GetContent() const override;
-        //
-        void SwitchOutbound(const QString &) override{};
-        QList<Qv2rayPlugin::QvPluginOutboundProtocolObject> OutboundCapabilities() const override
-        {
-            return { { "ShadowSocksR", "shadowsocksr" } };
-        }
       private slots:
         void on_ssrPasswordTxt_textEdited(const QString &arg1);
         void on_ssrMethodCombo_currentTextChanged(const QString &arg1);

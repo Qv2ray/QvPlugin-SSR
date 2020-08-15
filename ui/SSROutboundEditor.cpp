@@ -11,11 +11,11 @@ namespace SSRPlugin
     {
     }
 
-    QPair<QString, int> SSROutboundEditor::GetHostInfo() const
+    QPair<QString, int> SSROutboundEditor::GetHostAddress() const
     {
         return { shadowsocksR.address, shadowsocksR.port };
     }
-    void SSROutboundEditor::SetHostInfo(const QString &address, int port)
+    void SSROutboundEditor::SetHostAddress(const QString &address, int port)
     {
         shadowsocksR.address = address;
         shadowsocksR.port = port;

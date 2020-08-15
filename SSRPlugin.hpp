@@ -24,33 +24,26 @@ namespace SSRPlugin
         // Basic metainfo of this plugin
         const QvPluginMetadata GetMetadata() const override
         {
-            auto x = QvPluginMetadata{
+            return QvPluginMetadata{
                 "SSR Plugin",                         //
                 "Qv2ray Development Group",           //
                 "qvplugin_ssr",                       //
                 "Support SSR connections in Qv2ray.", //
-                QIcon(":/qv2ray.png"),                //
-                {},                                   //
-                { SPECIAL_TYPE_KERNEL,                //
-                  SPECIAL_TYPE_SERIALIZOR }           //
+                "v3.0.0",                             //
+                "Qv2ray/QvPlugin-SSR",                //
+                {
+                    COMPONENT_GUI,             //
+                    COMPONENT_KERNEL,          //
+                    COMPONENT_OUTBOUND_HANDLER //
+                },
+                UPDATE_GITHUB_RELEASE //
             };
-            x.KernelOutboundCapabilities = { { "ShadowSocksR", "shadowsocksr" } };
-            return x;
         }
-        //
-        std::unique_ptr<QWidget> GetSettingsWidget() override;
-        std::unique_ptr<QvPluginEditor> GetEditorWidget(UI_TYPE) override;
-        std::unique_ptr<QvPluginKernel> CreateKernel() override;
-        std::shared_ptr<QvPluginSerializer> GetSerializer() override;
-        std::shared_ptr<QvPluginEventHandler> GetEventHandler() override;
-        //
-        bool UpdateSettings(const QJsonObject &) override;
-        bool Initialize(const QString &, const QJsonObject &) override;
-        const QJsonObject GetSettngs() override;
+        bool InitializePlugin(const QString &, const QJsonObject &) override;
         //
       signals:
         void PluginLog(const QString &) const override;
-        void PluginErrorMessageBox(const QString &) const override;
+        void PluginErrorMessageBox(const QString &, const QString &) const override;
 
       private:
         QJsonObject settings;
