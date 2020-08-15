@@ -24,7 +24,7 @@ class SSRGuiInterface : public Qv2rayPlugin::PluginGUIInterface
     }
     virtual QList<typed_plugin_editor> createOutboundEditors() const override
     {
-        return { MakeEditorInfoPair<SSRPlugin::SSROutboundEditor>("shadowsocksr", "ShadowsocksR") };
+        return { MakeEditorInfoPair<SSROutboundEditor>("shadowsocksr", "ShadowsocksR") };
     }
     virtual std::unique_ptr<QvPluginMainWindowWidget> createMainWindowWidget() const override
     {
