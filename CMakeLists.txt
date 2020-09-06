@@ -1,7 +1,7 @@
-project(QvSSRPlugin)
+project(QvPlugin-SSR)
 cmake_minimum_required(VERSION 3.1.0)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
 if(CMAKE_VERSION VERSION_LESS "3.7.0")
     set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -18,6 +18,7 @@ include(cmake/shadowsocksr-uvw.cmake)
 set(QVPLUGIN_INTERFACE_INCLUDE_DIR "interface/")
 set(QVPLUGIN_HAS_HTTP_TO_SOCKS_HELPER ON)
 include(interface/QvPluginInterface.cmake)
+include(interface/QvGUIPluginInterface.cmake)
 include_directories(${QVPLUGIN_INTERFACE_INCLUDE_DIR})
 
 add_library(${PROJECT_NAME} MODULE
@@ -34,8 +35,11 @@ add_library(${PROJECT_NAME} MODULE
     ui/SSROutboundEditor.cpp
     ui/SSROutboundEditor.hpp
     ui/SSROutboundEditor.ui
+    ui/GUIInterface.hpp
     resx.qrc
-    ${QVPLUGIN_INTERFACE_HEADERS})
+    ${QVPLUGIN_INTERFACE_HEADERS}
+    ${QVGUIPLUGIN_INTERFACE_HEADERS}
+    )
 
 if(APPLE)
     add_custom_command(TARGET ${PROJECT_NAME}

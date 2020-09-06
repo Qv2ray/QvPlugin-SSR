@@ -4,38 +4,35 @@
 #include "common/CommonHelpers.hpp"
 
 #include <QList>
-namespace SSRPlugin
+using namespace Qv2rayPlugin;
+class SSRSerializer : public Qv2rayPlugin::PluginOutboundHandler
 {
-    QJsonObject GenerateShadowSocksROUT(QList<ShadowSocksRServerObject> servers);
-    class SSRSerializer : public Qv2rayPlugin::QvPluginSerializer
+  public:
+    explicit SSRSerializer() : PluginOutboundHandler(){};
+    const QString SerializeOutbound(const QString &protocol,  //
+                                    const QString &alias,     //
+                                    const QString &groupName, //
+                                    const QJsonObject &object) const override;
+    const QPair<QString, QJsonObject> DeserializeOutbound(const QString &link, QString *alias, QString *errorMessage) const override;
+    const Qv2rayPlugin::OutboundInfoObject GetOutboundInfo(const QString &protocol, const QJsonObject &outbound) const override
     {
-        Q_OBJECT
-      public:
-        explicit SSRSerializer(QObject *parent = nullptr) : Qv2rayPlugin::QvPluginSerializer(parent){};
-        const QString SerializeOutbound(const QString &protocol,  //
-                                        const QString &alias,     //
-                                        const QString &groupName, //
-                                        const QJsonObject &object) const override;
-        const QPair<QString, QJsonObject> DeserializeOutbound(const QString &link, QString *alias, QString *errorMessage) const override;
-        const Qv2rayPlugin::QvPluginOutboundInfoObject GetOutboundInfo(const QString &protocol, const QJsonObject &outbound) const override
+        if (protocol == "shadowsocksr")
         {
-            if (protocol == "shadowsocksr")
-            {
-                auto r = ShadowSocksRServerObject::fromJson(outbound);
-                return Qv2rayPlugin::QvPluginOutboundInfoObject{ r.address, "shadowsocksr", r.port };
-            }
-            else
-            {
-                return {};
-            }
+            auto r = ShadowSocksRServerObject::fromJson(outbound);
+            return {
+                { INFO_PROTOCOL, "shadowsocksr" }, //
+                { INFO_SERVER, r.address },        //
+                { INFO_PORT, r.port }              //
+            };
         }
-        const QList<QString> ShareLinkPrefixes() const override
-        {
-            return { "ssr://" };
-        };
-        const QList<QString> OutboundProtocols() const override
-        {
-            return { "shadowsocksr" };
-        }
+        return {};
+    }
+    const QList<QString> SupportedLinkPrefixes() const override
+    {
+        return { "ssr://" };
     };
-}; // namespace SSRPlugin
+    const QList<QString> SupportedProtocols() const override
+    {
+        return { "shadowsocksr" };
+    }
+};
