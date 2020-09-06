@@ -72,9 +72,9 @@ jobs:
 
           package() {
               cd "\$srcdir"/"\$_pkgname"/build
-              install -Dm644 libQvSSRPlugin.so "\$pkgdir"/usr/share/qv2ray/plugins/libQvSSRPlugin.so
+              install -Dm644 libQvPlugin-SSR.so "\$pkgdir"/usr/share/qv2ray/plugins/libQvPlugin-SSR.so
               depends+=(\${_virtualdepends[@]})
-              ldd libQvSSRPlugin.so
+              ldd libQvPlugin-SSR.so
           }
           PKGBUILD
           makepkg -sf --noconfirm
