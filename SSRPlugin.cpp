@@ -11,7 +11,7 @@ namespace SSRPlugin
     {
         emit PluginLog("Initialize plugin.");
         eventHandler = std::make_shared<SSRPluginEventHandler>();
-        serializer = std::make_shared<SSRSerializer>();
+        outboundHandler = std::make_shared<SSRSerializer>();
         kernelInterface = std::make_unique<SSRKernelInterface>();
         guiInterface = new SSRGuiInterface();
         return true;

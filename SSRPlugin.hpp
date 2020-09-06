@@ -47,7 +47,5 @@ namespace SSRPlugin
 
       private:
         QJsonObject settings;
-        std::shared_ptr<SSRPluginEventHandler> eventHandler;
-        std::shared_ptr<SSRSerializer> serializer;
     };
 } // namespace SSRPlugin
