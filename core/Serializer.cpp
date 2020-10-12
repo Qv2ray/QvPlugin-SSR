@@ -84,7 +84,7 @@ const QPair<QString, QJsonObject> SSRSerializer::DeserializeOutbound(const QStri
 const QString SSRSerializer::SerializeOutbound(const QString &protocol,  //
                                                const QString &alias,     //
                                                const QString &groupName, //
-                                               const QJsonObject &object) const
+                                               const QJsonObject &object, const QJsonObject &) const
 {
     Q_UNUSED(protocol)
     auto server = ShadowSocksRServerObject::fromJson(object);
