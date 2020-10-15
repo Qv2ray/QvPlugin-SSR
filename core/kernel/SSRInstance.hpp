@@ -13,6 +13,10 @@ class SSRKernelInstance : public Qv2rayPlugin::PluginKernel
     bool StartKernel() override;
     bool StopKernel() override;
     void SetConnectionSettings(const QMap<KernelOptionFlags, QVariant> &options, const QJsonObject &settings) override;
+    QString GetKernelName() const override
+    {
+        return "SSR";
+    }
 
   private:
     int socks_local_port;
