@@ -10,7 +10,8 @@ jobs:
     name: Arch Linux
     runs-on: ubuntu-latest
     container: archlinux:latest
-    
+    env:
+        ACTIONS_ALLOW_UNSECURE_COMMANDS: true
     steps:
       - name: Setup Basic Environment
         run: |
