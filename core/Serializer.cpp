@@ -10,7 +10,8 @@ const QPair<QString, QJsonObject> SSRSerializer::DeserializeOutbound(const QStri
         *errMessage = QObject::tr("SSR URI is too short");
         return {};
     }
-    QRegExp regex("^(.+):([^:]+):([^:]*):([^:]+):([^:]*):([^:]+)");
+
+    QRegularExpression regex("^(.+):([^:]+):([^:]*):([^:]+):([^:]*):([^:]+)");
     auto data = SafeBase64Decode(ssrBase64Uri.mid(6));
     // bool matchSuccess = regex.exactMatch(ssrUrl);
     for (int nTry = 0; nTry < 2; ++nTry)
@@ -50,9 +51,10 @@ const QPair<QString, QJsonObject> SSRSerializer::DeserializeOutbound(const QStri
             data = data.mid(0, data.lastIndexOf("/"));
         }
 
-        auto matched = regex.exactMatch(data);
-        auto list = regex.capturedTexts();
-        if (matched && list.length() == 7)
+#pragma message "Possible: Breaking Changes"
+        const auto matched = regex.match(data);
+        const auto list = regex.namedCaptureGroups();
+        if (matched.hasMatch() && list.count() == 7)
         {
             server.address = list[1];
             server.port = list[2].toInt();
@@ -68,11 +70,8 @@ const QPair<QString, QJsonObject> SSRSerializer::DeserializeOutbound(const QStri
     }
 
     QJsonObject root = server.toJson();
-    *alias = alias->isEmpty()                                                                                                                  //
-                 ?                                                                                                                             //
-                 (d_name.isEmpty() ? server.address + server.port + server.group + server.protocol + server.method + server.password : d_name) //
-                 :                                                                                                                             //
-                 *alias + "_" + d_name;                                                                                                        //
+    const auto generatedAlias = server.address + QString::number(server.port) + server.group + server.protocol + server.method + server.password;
+    *alias = alias->isEmpty() ? (d_name.isEmpty() ? generatedAlias : d_name) : *alias + "_" + d_name;
     *alias = alias->trimmed();
     if (alias->isEmpty())
     {
