@@ -91,7 +91,10 @@ jobs:
       - name: macOS - ${{ matrix.qt_version }} - Generate Dependencies and Build
         shell: bash
         if: matrix.platform == 'macos-latest'
+        env:
+          PKG_CONFIG_PATH: /usr/local/opt/openssl@1.1/lib/pkgconfig
         run: |
+          brew install openssl
           mkdir build
           cd build
           cmake .. -DCMAKE_BUILD_TYPE=Release -DQVPLUGIN_USE_QT6=ON
