@@ -27,7 +27,7 @@ jobs:
       - name: Get Plugin Name
         id: get_name
         shell: bash
-        run: echo ::set-output name=NAME::QvPlugin-Demo
+        run: echo ::set-output name=NAME::QvPlugin-SSR
       - name: Checking out sources
         uses: actions/checkout@master
         with:
@@ -94,7 +94,6 @@ jobs:
         env:
           PKG_CONFIG_PATH: /usr/local/opt/openssl@1.1/lib/pkgconfig
         run: |
-          brew install openssl
           mkdir build
           cd build
           cmake .. -DCMAKE_BUILD_TYPE=Release -DQVPLUGIN_USE_QT6=ON
