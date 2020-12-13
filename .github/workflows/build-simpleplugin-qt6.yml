@@ -30,6 +30,8 @@ jobs:
         run: echo ::set-output name=NAME::QvPlugin-Demo
       - name: Checking out sources
         uses: actions/checkout@master
+        with:
+          submodule: 'recursive'
       - name: Install Python 3.7 version
         uses: actions/setup-python@v1
         with:
