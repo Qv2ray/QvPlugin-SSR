@@ -1,6 +1,7 @@
 #include "Serializer.hpp"
 
 #include <QObject>
+#include <QRegularExpression>
 const QPair<QString, QJsonObject> SSRSerializer::DeserializeOutbound(const QString &ssrBase64Uri, QString *alias, QString *errMessage) const
 {
     ShadowSocksRServerObject server;
