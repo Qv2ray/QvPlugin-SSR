@@ -47,15 +47,20 @@ const QPair<QString, QJsonObject> SSRSerializer::DeserializeOutbound(const QStri
             // params_dict = ParseParam(data.mid(param_start_pos + 1));
             data = data.mid(0, param_start_pos);
         }
+
         if (data.indexOf("/") >= 0)
         {
             data = data.mid(0, data.lastIndexOf("/"));
         }
 
-#pragma message "Possible: Breaking Changes"
-        const auto matched = regex.match(data);
-        const auto list = regex.namedCaptureGroups();
-        if (matched.hasMatch() && list.count() == 7)
+        const auto match = regex.match(data);
+        const auto hasmatch = match.hasMatch();
+        QStringList list;
+        for (auto i = 0; i <= regex.captureCount(); i++)
+        {
+            list << match.captured(i);
+        }
+        if (hasmatch && list.count() == 7)
         {
             server.address = list[1];
             server.port = list[2].toInt();
